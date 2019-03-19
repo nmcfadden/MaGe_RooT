@@ -39,26 +39,20 @@ inline bool fileExist (const std::string& name) {
 
 
 int main(){
-  TString fileName = "OpticalMapL200.root";
+  TString fileName = "OpticalMapL200.14String.5mm.2e9.root";
 
   TFile *outFileMaGe = new TFile(fileName,"recreate");
   
-  TString dir = "/mnt/mjdDisk1/Majorana/users/nmcfadden/RooT/";
+  //TString dir = "/mnt/mjdDisk1/Majorana/users/nmcfadden/RooT/";
+  TString dir = "/home/nmcfadden/RooT/mage/";
   
-  TString inFileNameTH3D = "OpticalMapLEGEND200.4e9_2mm.TwoFiber.5Rows_RawProb.root";//"OpticalMapLEGEND200.4e9_10mm.5Rows_RawProb.root";//OpticalMapLEGEND200.4e9_2mm.TwoFiber.5Rows_RawProb.root
-  TString inFileNameTH2D = "OpticalMapLEGEND200.4e9_50mm.1e7.Exterior.root";
+  //TString inFileNameTH3D = "OpticalMapLEGEND200.4e9_2mm.TwoFiber.5Rows_RawProb.root";
+  //TString inFileNameTH3D = "OpticalMapLEGEND200.2.032e+09.19String.twoFiber.NO_HV.5mm.root";
+  TString inFileNameTH3D = "OpticalMapLEGEND200.2e9.14String.root";
+  //TString inFileNameTH3D = "OpticalMapLEGEND200.4e8.14String.25mm.root";
+  //TString inFileNameTH2D = "OpticalMapLEGEND200.4e9_50mm.1e7.Exterior.root";
+  TString inFileNameTH2D = "OpticalMapLEGEND200.Exterior.25mm.root";
 
-  /*
-  Double_t gridSpacing = 10;
-  Double_t maxX = 320.,maxY=320.0,maxZ=600,minZ = -200.;
-  Int_t nbinsX = 2*maxX/gridSpacing,nbinsY = 2*maxY/gridSpacing,nbinsZ = (maxZ-minZ)/gridSpacing;
-  TH3D * h3D = new TH3D("","",nbinsX,-maxX,maxX,nbinsY,-maxY,maxY,nbinsZ,-maxZ,maxZ);
-
-  gridSpacing = 50;
-  maxX = 1000.;maxY=1000;maxZ=1200;minZ = -800.;minR = 320.; maxR = 1000.;
-  nbinsX = 2*maxX/gridSpacing;
-  TH2D* h2D = new TH2D("","",nbinsX/2.,minR,maxR,nbinsZ,minZ,maxZ);
-  */
   TH3D * h3D;
   TH2D* h2D;
   TFile* fileTH3D = TFile::Open(dir+inFileNameTH3D);

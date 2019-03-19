@@ -32,9 +32,6 @@
 #include <unordered_map>
 #include <map>
 
-#include "OpticalMap.hh"
-//#include "OpticalMap.cc"
-
 using namespace std;
 
 inline bool fileExist (const std::string& name) {
@@ -62,13 +59,14 @@ int main(){
   TH2D* h2DMapYZDistribution;
 
   Double_t gridSpacing = 5;//*mm
-  Double_t maxX = 300.,maxY=300.,maxZ=925,minZ = -425.,minR = 0., maxR = 300.;
   //Double_t maxX = 320.,maxY=320.0,maxZ=600,minZ = -200.,minR=0,maxR=320;
+  Double_t maxX = 300.,maxY=300.0,maxZ=925,minZ = -425.,minR=0,maxR=300;
+  //Double_t maxX = 1300.,maxY=1300.0,maxZ=925,minZ = -425.,minR=300,maxR=1300;
   //Double_t maxX = 1000.,maxY=1000,maxZ=1200,minZ = -800.,minR = 320., maxR = 1000.;
   Int_t nbinsX = 2*maxX/gridSpacing,nbinsY = 2*maxY/gridSpacing,nbinsZ = (maxZ-minZ)/gridSpacing;
 
   TH3D* hOutMapUnscaled = new TH3D("EnergyMapUnscaled","EnergyMapUnscaled",nbinsX,-maxX,maxX,nbinsY,-maxY,maxY,nbinsZ,-maxZ,maxZ);
-  
+  ///* 
   TH3D* hOutMap = new TH3D("EnergyMap","EnergyMap",nbinsX,-maxX,maxX,nbinsY,-maxY,maxY,nbinsZ,-maxZ,maxZ);
   TH2D* h2DOutMapRZ = new TH2D("2DOpticalMap_RZ","2DOpticalMap_RZ",nbinsX/2.,minR,maxR,nbinsZ,minZ,maxZ);
   TH2D* h2DOutMapRZUnscaled = new TH2D("2DOpticalMap_RZ_Unscaled","2DOpticalMap_RZ_Unscaled",nbinsX/2.,minR,maxR,nbinsZ,minZ,maxZ);
@@ -79,47 +77,54 @@ int main(){
 
   TH2D* h2DOutMapYZ = new TH2D("2DOpticalMap_YZ","2DOpticalMap_YZ",nbinsY,-maxY,maxY,nbinsZ,minZ,maxZ);
   TH2D* h2DOutMapYZUnscaled = new TH2D("2DOpticalMap_YZUnscaled","2DOpticalMap_YZUnscaled",nbinsY,-maxY,maxY,nbinsZ,minZ,maxZ);
-  
+  //*/
   //TString dir = "/mnt/mjdDisk1/Majorana/users/nmcfadden/MaGe/bin/Linux-g++/";
   //TString dir = "/mnt/mjdDisk1/Majorana/users/nmcfadden/";
   //TString dir = "/mnt/mjdDisk1/Majorana/users/nmcfadden/array/";
-  TString dir = "/mnt/mjdDisk1/Majorana/users/nmcfadden/RooT/";
-  
-  //TODO -- Load in raw out from anaOptical.cc
+  TString dir = "/home/nmcfadden/RooT/mage/";
+   
   //TString fileName = "SensitiveVolumes_NoOptical-1000";
   //TString fileName = "OpticalMap10mm400MEventsOriginalGeometry";
   //TString fileName = "MaGe.155758-20181001";
   //TString fileName = "MaGe.82655-20181030";
   //TString fileName = "RawLEGEND200.4e9.10mm";
-  TString fileName = "RawLEGEND200.4e9.2mm.TwoFiber";
+  //TString fileName = "RawLEGEND200.1.732e+09.19String.twoFiber.NO_HV";
+  //TString fileName = "RawLEGEND200.2.032e+09.19String.twoFiber.NO_HV";
+  TString fileName = "RawLEGEND200.2e9.14string";
   //TString fileName = "RawLEGEND200.1e7.50mm.Exterior";
+  //TString fileName = "RawLEGENDExterior.8e6.14string";
+  //TString fileName = "RawLEGEND200.4e8.14String.25mm";
  
   if(!fileExist(string(dir+fileName+TString(".root")))){
     cout<<"no file, no cry, strong boy, good hear, look, find, file. "<<endl;
   }
   TFile* mapfile = TFile::Open(dir+fileName+TString(".root"));
   
-  //TODO- set Total number of events generated in array run
-  Double_t nEvents = 4e9;//1.e7;//4000000000;
+  Double_t nEvents = 2.e+09;//4e8;//1.e7;//4000000000;
   //get Map
   mapfile->ls();
+  ///*
   mapfile->GetObject("OpticalMap_unScaled",hMap);
   mapfile->GetObject("2DOpticalMap_RZUnscaled",h2DMapRZ);
   mapfile->GetObject("2DOpticalMap_XYUnscaled",h2DMapXY);
   mapfile->GetObject("2DOpticalMap_YZUnscaled",h2DMapYZ);
-
+  //*/
   /*
-  mapfile->ls();
+  //mapfile->ls();
   mapfile->GetObject("OpticalMap",hMap);
   mapfile->GetObject("2DOpticalMap_RZ",h2DMapRZ);
   mapfile->GetObject("2DOpticalMap_XY",h2DMapXY);
   mapfile->GetObject("2DOpticalMap_YZ",h2DMapYZ);
   */
 
-
-  //TODO -- load in probabity distribution from binHistogram.cc
+  
+  TFile* distFile = TFile::Open(dir+TString("ProbDist14String5mm.1e9.root"));
+  //TFile* distFile = TFile::Open(dir+TString("ProbDist14String25mm.1e8.root"));
   //TFile* distFile = TFile::Open(dir+TString("distributionMapLGND200.2mm.TwoFiber.root"));
-  TFile* distFile = TFile::Open(dir+TString("distributionMapLGND200.2mm.TwoFiber.root"));
+  //TFile* distFile = TFile::Open(dir+TString("distributionMapLGND200.19String.twoFiber.root"));
+  //TFile* distFile = TFile::Open(dir+TString("ProbDist14String5mm.root"));
+  //TFile* distFile = TFile::Open(dir+TString("ProbDistExterior25mm.50.root"));
+  //TFile* distFile = TFile::Open(dir+TString("ProbDistExterior25mm.4e7.root"));
   //TFile* distFile = TFile::Open(dir+TString("distributionMapLGND200.10mm.root"));
   //TFile* distFile = TFile::Open(dir+TString("distributionMapLGND200.50mm.Exterior.root"));
 
@@ -138,37 +143,22 @@ int main(){
       for(int k = 0; k <= hMap->GetNbinsZ();k++){
         Double_t binVal = hMap->GetBinContent(i,j,k);
         Double_t weight = h3DMapDistribution->GetBinContent(i,j,k);
-/*        
-        Double_t z = k*gridSpacing+minZ;
-        Double_t y = j*gridSpacing-maxY;
-        Double_t x = i*gridSpacing-maxX;
-        
-        Int_t newBin;
-        //cout<<"("<<y<<","<<z<<")"<<endl;
-        Double_t top = 203,bot = 19,shift =(top-bot)/4;
-        if(z>(top-shift)){//195//107
-          z -= shift;
-          newBin = hMap->FindBin(x,y,z)-1;
-        }  
-        else if(z<(bot+shift)){//20//107
-          z += shift;
-          newBin = hMap->FindBin(x,y,z)-1;
-        }
-        else continue;
-        //      cout<<"\t new ("<<y<<","<<z<<")"<<endl;
-        Double_t prob = binVal/(weight*nEvents);
-        Double_t eThresh = 1./(prob*scintYield);
-        if(binVal == 0)continue;
-        if(weight == 0)continue;
-        //hOutMap->SetBinContent(newBin,eThresh);
-        hOutMapUnscaled->SetBinContent(newBin,prob);
-*/
         ///*
         if(binVal == 0)continue;
         if(weight == 0)continue;
 
-        //Double_t prob = binVal/weight;      
+        //if(prob < 0) cout<<"binVal "<<binVal<<" weight "<<weight<<endl;
+        //binVal is the number raw events were generated in a voxel
+        //weight is the probability of generating an event in that voxel
+        //weight*nEvents is the number of events generated in that voxel
         Double_t prob = binVal/(weight*nEvents);      
+        //Double_t prob = binVal/weight;
+        //Double_t prob = binVal*weight;
+        Double_t x = gridSpacing*(i)-maxX;
+        Double_t y = gridSpacing*(j)-maxY;
+        Double_t z = gridSpacing*(k)+minZ;
+        //if( sqrt(x*x + y*y) > 250 && sqrt(x*x + y*y) < 310)
+        //cout<<"binVal "<<binVal<<", weight "<<weight<<", Prob "<<prob<<", ("<<x<<","<<y<<","<<z<<")"<<endl;
         Double_t eThresh = 1./(prob*scintYield);        
         hOutMap->SetBinContent(i,j,k,eThresh);
         hOutMapUnscaled->SetBinContent(i,j,k,prob);
@@ -184,36 +174,16 @@ int main(){
       Double_t weight = h2DMapRZDistribution->GetBinContent(i,j);
       Double_t z = j*gridSpacing+minZ;
       Double_t r = i*gridSpacing+minR;
-      /*
-      Int_t newBin;
-      //cout<<"("<<y<<","<<z<<")"<<endl;
-      Double_t delta = 1,top = 203+delta,bot = 19-delta,shift =(top-bot)/4;
-      if(z>(top-shift)){//195//107
-        z -= shift;
-        newBin = h2DMapRZ->FindBin(r,z)-1;
-      }  
-      else if(z<(bot+shift)){//20//107
-        z += shift;
-        newBin = h2DMapRZ->FindBin(r,z)-1;
-      }
-      else continue;
-      Double_t prob = binVal/(weight*nEvents);
-      Double_t eThresh = 1./(prob*scintYield);
-      if(binVal == 0)continue;
-      if(weight == 0)continue;
-      h2DOutMapRZ->SetBinContent(newBin,eThresh);
-      h2DOutMapRZUnscaled->SetBinContent(newBin,prob);
-      */
-      ///*
       if(binVal == 0) binVal = h2DMapRZ->Interpolate(r,z);
+      //Double_t prob = binVal/weight;
       Double_t prob = binVal/(weight*nEvents);
       Double_t eThresh = 1./(prob*scintYield);
+      
       //if(binVal == 0)continue;
-      if(binVal == 0) prob = 1e-4;
+      if(binVal == 0) prob = 1e-5;
       if(weight == 0)continue;
       h2DOutMapRZ->SetBinContent(i,j,eThresh);
       h2DOutMapRZUnscaled->SetBinContent(i,j,prob);
-      //*/
     }
   }
   for(int i = 0; i <= h2DMapXY->GetNbinsX();i++){

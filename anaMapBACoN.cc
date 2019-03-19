@@ -32,9 +32,6 @@
 #include <unordered_map>
 #include <map>
 
-#include "OpticalMap.hh"
-//#include "OpticalMap.cc"
-
 using namespace std;
 
 inline bool fileExist (const std::string& name) {
@@ -88,18 +85,19 @@ int main(){
   //TString dir = "/mnt/mjdDisk1/Majorana/users/nmcfadden/MaGe/bin/Linux-g++/";
   //TString dir = "/mnt/mjdDisk1/Majorana/users/nmcfadden/";
   //TString dir = "/mnt/mjdDisk1/Majorana/users/nmcfadden/array/";
-  TString dir = "/mnt/mjdDisk1/Majorana/users/nmcfadden/RooT/";
+  //TString dir = "/mnt/mjdDisk1/Majorana/users/nmcfadden/RooT/";
+  TString dir = "/home/nmcfadden/RooT/mage/";
    
   //TString fileName = "SensitiveVolumes_NoOptical-1000";
   //TString fileName = "OpticalMap10mm400MEventsOriginalGeometry";
   //TString fileName = "MaGe.155758-20181001";
-  TString fileName = "BACoN.81128-20181116";
+  //TString fileName = "BACoN.81128-20181116";
+  TString fileName = "RawBACoN_1PMT.4e9"; 
 cout<<"nbinsX "<<nbinsX<<", nbinsY "<<nbinsY<<", nbinsZ "<<nbinsZ<<endl;
   if(!fileExist(string(dir+fileName+TString(".root")))){
     cout<<"no file, no cry, strong boy, good hear, look, find, file. "<<endl;
   }
   TFile* mapfile = TFile::Open(dir+fileName+TString(".root"));
-  
   //get Map
   mapfile->ls();
   mapfile->GetObject("OpticalMap",hMap);
@@ -107,7 +105,7 @@ cout<<"nbinsX "<<nbinsX<<", nbinsY "<<nbinsY<<", nbinsZ "<<nbinsZ<<endl;
   mapfile->GetObject("2DOpticalMap_XY",h2DMapXY);
   mapfile->GetObject("2DOpticalMap_YZ",h2DMapYZ);
   
-  TFile* distFile = TFile::Open(dir+TString("distributionMapBacon.root"));
+  TFile* distFile = TFile::Open(dir+TString("ProbDistBACON1PMT1.5*mm.112455-20190305.root"));
   distFile->GetObject("OpticalMap_Distribution",h3DMapDistribution);    
   distFile->GetObject("2DOpticalMap_RZDistribution",h2DMapRZDistribution);    
   distFile->GetObject("2DOpticalMap_XYDistribution",h2DMaXYDistribution);    
