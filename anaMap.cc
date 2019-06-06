@@ -60,8 +60,8 @@ int main(){
 
   Double_t gridSpacing = 5;//*mm
   //Double_t maxX = 320.,maxY=320.0,maxZ=600,minZ = -200.,minR=0,maxR=320;
-  Double_t maxX = 300.,maxY=300.0,maxZ=925,minZ = -425.,minR=0,maxR=300;
-  //Double_t maxX = 1300.,maxY=1300.0,maxZ=925,minZ = -425.,minR=300,maxR=1300;
+  //Double_t maxX = 300.,maxY=300.0,maxZ=925,minZ = -425.,minR=0,maxR=300;
+  Double_t maxX = 1000.,maxY=1000.0,maxZ=925,minZ = -425.,minR=300,maxR=1000;
   //Double_t maxX = 1000.,maxY=1000,maxZ=1200,minZ = -800.,minR = 320., maxR = 1000.;
   Int_t nbinsX = 2*maxX/gridSpacing,nbinsY = 2*maxY/gridSpacing,nbinsZ = (maxZ-minZ)/gridSpacing;
 
@@ -81,7 +81,7 @@ int main(){
   //TString dir = "/mnt/mjdDisk1/Majorana/users/nmcfadden/MaGe/bin/Linux-g++/";
   //TString dir = "/mnt/mjdDisk1/Majorana/users/nmcfadden/";
   //TString dir = "/mnt/mjdDisk1/Majorana/users/nmcfadden/array/";
-  TString dir = "/home/nmcfadden/RooT/mage/";
+  TString dir = "";///home/nmcfadden/RooT/mage/";
    
   //TString fileName = "SensitiveVolumes_NoOptical-1000";
   //TString fileName = "OpticalMap10mm400MEventsOriginalGeometry";
@@ -90,17 +90,21 @@ int main(){
   //TString fileName = "RawLEGEND200.4e9.10mm";
   //TString fileName = "RawLEGEND200.1.732e+09.19String.twoFiber.NO_HV";
   //TString fileName = "RawLEGEND200.2.032e+09.19String.twoFiber.NO_HV";
-  TString fileName = "RawLEGEND200.2e9.14string";
+  TString fileName = "RawLEGEND200.2e8.19stringExterior.500Radon";
+  //TString fileName = "RawLEGEND200.2e8.14stringExterior.500Radon";
+  //TString fileName = "RawLEGEND200.2e9.14string";
   //TString fileName = "RawLEGEND200.1e7.50mm.Exterior";
   //TString fileName = "RawLEGENDExterior.8e6.14string";
   //TString fileName = "RawLEGEND200.4e8.14String.25mm";
- 
+  //TString fileName = "RawLEGEND200.2e8.19stringExterior.700Radon";
+  //TString fileName = "RawLEGEND200.2e8.14stringExterior.700Radon";
+
   if(!fileExist(string(dir+fileName+TString(".root")))){
     cout<<"no file, no cry, strong boy, good hear, look, find, file. "<<endl;
   }
   TFile* mapfile = TFile::Open(dir+fileName+TString(".root"));
   
-  Double_t nEvents = 2.e+09;//4e8;//1.e7;//4000000000;
+  Double_t nEvents = 2.e+8;//4e8;//1.e7;//4000000000;
   //get Map
   mapfile->ls();
   ///*
@@ -117,8 +121,8 @@ int main(){
   mapfile->GetObject("2DOpticalMap_YZ",h2DMapYZ);
   */
 
-  
-  TFile* distFile = TFile::Open(dir+TString("ProbDist14String5mm.1e9.root"));
+  TFile* distFile = TFile::Open(dir+TString("ProbDistExterior19String.5mm.1e9.Radon700.root"));
+  //TFile* distFile = TFile::Open(dir+TString("ProbDist19String5mm.4e9.root"));
   //TFile* distFile = TFile::Open(dir+TString("ProbDist14String25mm.1e8.root"));
   //TFile* distFile = TFile::Open(dir+TString("distributionMapLGND200.2mm.TwoFiber.root"));
   //TFile* distFile = TFile::Open(dir+TString("distributionMapLGND200.19String.twoFiber.root"));
@@ -143,26 +147,30 @@ int main(){
       for(int k = 0; k <= hMap->GetNbinsZ();k++){
         Double_t binVal = hMap->GetBinContent(i,j,k);
         Double_t weight = h3DMapDistribution->GetBinContent(i,j,k);
-        ///*
-        if(binVal == 0)continue;
-        if(weight == 0)continue;
-
-        //if(prob < 0) cout<<"binVal "<<binVal<<" weight "<<weight<<endl;
-        //binVal is the number raw events were generated in a voxel
-        //weight is the probability of generating an event in that voxel
-        //weight*nEvents is the number of events generated in that voxel
-        Double_t prob = binVal/(weight*nEvents);      
-        //Double_t prob = binVal/weight;
-        //Double_t prob = binVal*weight;
         Double_t x = gridSpacing*(i)-maxX;
         Double_t y = gridSpacing*(j)-maxY;
         Double_t z = gridSpacing*(k)+minZ;
-        //if( sqrt(x*x + y*y) > 250 && sqrt(x*x + y*y) < 310)
-        //cout<<"binVal "<<binVal<<", weight "<<weight<<", Prob "<<prob<<", ("<<x<<","<<y<<","<<z<<")"<<endl;
+
+        //if(binVal == 0)continue;
+        if(weight == 0)continue;
+
+        //binVal is the number raw events were generated in a voxel
+        //weight is the probability of generating an event in that voxel
+        //weight*nEvents is the number of events generated in that voxel
+        if(weight == 0){
+          weight = h3DMapDistribution->Interpolate(x,y,z);
+        }
+        if(binVal == 0){
+          //Double_t binVal = hMap->Interpolate(x,y,z);
+          //cout<<"("<<x<<","<<y<<","<<z<<")"<<endl;
+        }
+        Double_t prob = binVal/(weight*nEvents);
+          
+        //Double_t prob = binVal/weight;
+        //Double_t prob = binVal*weight;
         Double_t eThresh = 1./(prob*scintYield);        
         hOutMap->SetBinContent(i,j,k,eThresh);
         hOutMapUnscaled->SetBinContent(i,j,k,prob);
-        //*/
       }
     }
   }
@@ -174,14 +182,17 @@ int main(){
       Double_t weight = h2DMapRZDistribution->GetBinContent(i,j);
       Double_t z = j*gridSpacing+minZ;
       Double_t r = i*gridSpacing+minR;
-      if(binVal == 0) binVal = h2DMapRZ->Interpolate(r,z);
+      if(weight == 0) continue;
+      if(binVal == 0){
+        //binVal = h2DMapRZ->Interpolate(r,z);
+        //cout<<"("<<r<<","<<z<<")"<<endl;
+      }
       //Double_t prob = binVal/weight;
       Double_t prob = binVal/(weight*nEvents);
       Double_t eThresh = 1./(prob*scintYield);
       
       //if(binVal == 0)continue;
       if(binVal == 0) prob = 1e-5;
-      if(weight == 0)continue;
       h2DOutMapRZ->SetBinContent(i,j,eThresh);
       h2DOutMapRZUnscaled->SetBinContent(i,j,prob);
     }
@@ -190,10 +201,15 @@ int main(){
     for(int j = 0; j <= h2DMapXY->GetNbinsY();j++){
       Double_t binVal = h2DMapXY->GetBinContent(i,j);
       Double_t weight = h2DMaXYDistribution->GetBinContent(i,j);
+      Double_t x = gridSpacing*(i)-maxX;
+      Double_t y = gridSpacing*(j)-maxY;
 
-      if(binVal == 0)continue;
+      //if(binVal == 0)continue;
       if(weight == 0)continue;
-
+      if(binVal == 0){
+        //binVal = h2DMapXY->Interpolate(x,y);
+        //cout<<"("<<x<<","<<y<<")"<<endl;
+      }
       //Double_t prob = binVal/weight;
       Double_t prob = binVal/(weight*nEvents);
       Double_t eThresh = 1./(prob*scintYield);
@@ -208,8 +224,16 @@ int main(){
       Double_t binVal = h2DMapYZ->GetBinContent(i,j);
       Double_t weight = h2DMapYZDistribution->GetBinContent(i,j);
 
-      if(binVal == 0)continue;
+      //if(binVal == 0)continue;
       if(weight == 0)continue;
+      Double_t y = gridSpacing*(i)-maxZ;
+      Double_t z = gridSpacing*(j)+minZ;
+
+      if(binVal == 0){
+        //binVal = h2DMapYZ->Interpolate(y,z);
+        //cout<<"("<<y<<","<<z<<")"<<endl;
+      }
+
       //Double_t prob = binVal/weight;
       Double_t prob = binVal/(weight*nEvents);
       Double_t eThresh = 1./(prob*scintYield);      

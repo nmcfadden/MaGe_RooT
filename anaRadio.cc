@@ -48,18 +48,22 @@ int main(){
   
   TNtuple *ntpleStepLAr = new TNtuple("stepLAR","LArCore","event:nstep:edep:ke:x:y:z:r:t");
   TNtuple *ntpleLAr = new TNtuple("primaryLAr","primaryLAr","x:y:z:r:theta:px:py:pz:nPhotons:edep:mapThresh:pmtCounter:totalPhotons");
+  TNtuple *ntpleGAr = new TNtuple("primaryGAr","primaryGAr","x:y:z:r:theta:px:py:pz:nPhotons:edep:mapThresh:pmtCounter:totalPhotons");
   TNtuple *ntpleGe = new TNtuple("primaryGe","primaryGe","x:y:z:r:theta:px:py:pz:nPhotons:edep:mapThresh:pmtCounter:totalPhotons");
+  //TH2D * hRZTrackWeight = new TH2D("RZTrackWeights","RZTrackWeight",
   Double_t totalEvents = 0;
   Int_t noHitcounter = 0;
  
   TH3D *hMap;
   TH2D *hYZMap;
-  TString mapDir = "/mnt/mjdDisk1/Majorana/users/nmcfadden/RooT/";
+  //TString mapDir = "/mnt/mjdDisk1/Majorana/users/nmcfadden/RooT/";
+  TString mapDir = "/home/nmcfadden/RooT/MaGe_RooT/";
   //TString mapFileName = "OpticalMapBACON.1e9.5mm";
   //TString mapFileName = "OpticalMapBACONArgon.1e10.5mm";
-  TString mapFileName = "OpticalMapBACONXenon.1e10.5mm";
+  //TString mapFileName = "OpticalMapBACONXenon.1e10.5mm";
   //TString mapFileName = "OpticalMapLEGEND200.4e9_10mm";
   //TString mapFileName = "Detect.113005-20181019";
+  TString mapFileName = "OpticalMapBACoN.1e10";
   TFile* mapFile = TFile::Open(mapDir+mapFileName+TString(".root"));
   mapFile->GetObject("EnergyMap",hMap);
   mapFile->GetObject("2DOpticalMap_YZ",hYZMap);
@@ -68,20 +72,25 @@ int main(){
   
   for(int k = 0; k < 1 ; k++){
    
+    TString dir = "/home/nmcfadden/XenonDoping/bin/Linux-g++/";
     //TString dir = "/mnt/mjdDisk1/Majorana/users/nmcfadden/MaGe/bin/Linux-g++/";
-    TString dir = "/mnt/mjdDisk1/Majorana/users/nmcfadden/BACoN/bin/Linux-g++/";
+    //TString dir = "/mnt/mjdDisk1/Majorana/users/nmcfadden/BACoN/bin/Linux-g++/";
     //TString dir = "/mnt/mjdDisk1/Majorana/users/nmcfadden/arrayGenerator/";
     //TString dir = "/mnt/mjdDisk1/Majorana/users/nmcfadden/array/";
     //TString dir = "/mnt/mjdDisk1/Majorana/users/nmcfadden/LGND_200Orig100M1.1mAttenuation/";
     //TString dir = "/mnt/mjdDisk1/Majorana/users/nmcfadden/RooT/";
     //TString dir = "/mnt/mjdDisk1/Majorana/users/nmcfadden/arrBACON/";
+    TString fileName = "OpticalRun";
     //TString fileName = "SensitiveVolumesLGND_200Alt1" +to_string(k);
     //TString fileName = "SensitiveVolumesLGND_200Orig1.1mAttenuation" +to_string(k);
     //TString fileName = "SensitiveVolumesLGND_200Orig" +to_string(k);
     //TString fileName = "SensitiveVolumes" +to_string(k);
     //TString fileName = "RadaioDecaySensitiveVolume";
     //TString fileName = "PMTCountingTest";
-    TString fileName = "1MeVBeta100000Events";
+    //TString fileName = "1MeVBeta100000Events";
+    //TString fileName = "1MeVAlphaEvents";
+    //TString fileName = "1MeVBetaEvents";
+    //TString fileName = "1MeVGammaEvents";
     //TString fileName = "RDMiso224.88";
     //TString fileName = "2MeVGamma.1e4";
     //TString fileName = "SensitiveVolumesLGND_200Orig"+to_string(k);
@@ -132,9 +141,9 @@ int main(){
       Double_t px = primaries->GetPx(),py = primaries->GetPy(),pz = primaries->GetPz();
       Double_t r = sqrt(x*x+y*y);
       Double_t theta = std::acos(x/r);
-      Double_t nPhotons = 0,eDepLAr = 0,eDepGe = 0,mapThresh = 0.;
+      Double_t nPhotons = 0,eDepLAr = 0,eDepGe = 0,mapThresh = 0.,eDepGAr = 0;
       Int_t stepCounter = 0,pmtCounter = 0,nTotalPhotons = 0;
-      bool hitLAr = false,hitGe = false;
+      bool hitLAr = false,hitGe = false,hitGAr = false;
       if( y < 0) theta += 3.14159265359;
       for (Int_t j = 0; j < eventSteps->GetNSteps();j++){
         step = eventSteps->GetStep(j);
@@ -146,8 +155,8 @@ int main(){
         //eDep +=step->GetEdep();
         if(physName.Contains("physicalPMT")&& procName.Contains("WLS") && step->GetParticleID() == 0 && step->GetEdep() != 0) pmtCounter++;
         //if(physName.Contains("SiPM")&& step->GetParticleID() == 0 && step->GetEdep() != 0) pmtCounter++;
-        if(physName =="Detector"  ){
-          if(step->GetParticleID() == 0) continue;
+        if(physName =="Detector" || physName == "argonGasPhysical" ){
+          //if(step->GetParticleID() == 0) continue;
           ///*
           //if(sqrt(step->GetX()*step->GetX() +step->GetY()*step->GetY()) > 254.) continue;
           //if(fabs(step->GetZ()) > 23.*2.54*10/2.) continue;
@@ -170,7 +179,23 @@ int main(){
           hitLAr = true;
           ntpleStepLAr->Fill(i,j,step->GetEdep(),step->GetKineticE(),step->GetX(),step->GetY(),step->GetZ(),sqrt(step->GetX()*step->GetX() +step->GetY()*step->GetY()),step->GetT());
         }
-        else if(physName.Contains("ActiveDet")){
+        if(physName == "argonGasPhysical"){
+          Int_t bin = hMap->FindBin(step->GetX(),step->GetY(),step->GetZ());
+          //Int_t bin = hYZMap->FindBin(step->GetY(),step->GetZ());
+          Double_t eThresh = (hMap->GetBinContent(bin)/1000.); //map in keV, Geant4 is in MeV
+          //Double_t eThresh = hYZMap->GetBinContent(bin)/1000.; //map in keV, Geant4 is in MeV
+          //cout<<"bin "<<bin<<", threshold "<<eThresh<<", eDep "<<step->GetEdep()<<endl;
+          if(eThresh == 0){
+            eThresh = 100.; //100 MeV as a large threshold
+          }
+          nPhotons += step->GetEdep()/eThresh;
+          mapThresh+= eThresh;
+          //stepCounter++;
+          //*/
+          eDepGAr +=step->GetEdep();
+          hitGAr = true;
+        }
+        if(physName.Contains("ActiveDet")){
           eDepGe += step->GetEdep();
           hitGe = true;
         }
@@ -190,6 +215,9 @@ int main(){
       }
       if(hitGe){ 
         ntpleGe->Fill(x,y,z,r,theta,px,py,pz,nPhotons,eDepGe,mapThresh/stepCounter,pmtCounter,nTotalPhotons);
+      }
+      if(hitGAr){
+        ntpleGAr->Fill(x,y,z,r,theta,px,py,pz,nPhotons,eDepGAr,mapThresh/stepCounter,pmtCounter,nTotalPhotons);
       }
       if(!hitGe && !hitLAr){
         noHitcounter++;
