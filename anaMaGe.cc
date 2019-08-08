@@ -43,7 +43,7 @@ int main(){
   TDatime time;
   //time 12:36:26 133626
   ///date 24/12/1997 19971224
-  TString fileName = TString("BACoNAnaOutput")+TString(".root");
+  TString fileName = TString("MaGeAnaOutput")+TString(".root");
   TFile *outFileMaGe = new TFile(fileName,"recreate");
   
   TNtuple *ntpleLAr = new TNtuple("primaryLAr","primaryLAr","scint:wls:ceren:edep:nDetected:nDetectedOpticalMap");
@@ -60,7 +60,7 @@ int main(){
   //TString mapFileName = "OpticalMapBACONXenon.1e10.5mm";
   //TString mapFileName = "OpticalMapLEGEND200.4e9_10mm";
   //TString mapFileName = "Detect.113005-20181019";
-  TString mapFileName = "root/BACoN-heat.PMTs.10000";
+  TString mapFileName = "BACoN-heat.PMTs.10000";
   TFile* mapFile = TFile::Open(mapDir+mapFileName+TString(".root"));
   if(mapFile != NULL){
     mapFile->GetObject("OpticalMap",hMap);
