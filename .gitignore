@@ -1,0 +1,10 @@
+*.root
+*.o
+*~
+anaBACoN
+anaMaGe
+anaMap
+anaOptical
+anaRadio
+mapMerger
+*.swp

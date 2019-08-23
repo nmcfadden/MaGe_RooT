@@ -159,7 +159,7 @@ int main(){
           Double_t scintYeild = 40.;//40 photons/keV
           Double_t eThresh = mapProb*scintYeild;
           //average photon yeild accord to map
-          nPhotons += edep/eThresh;
+          nPhotons += edep*eThresh;
         }
 
       }
