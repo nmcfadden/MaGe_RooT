@@ -8,3 +8,5 @@ anaOptical
 anaRadio
 mapMerger
 *.swp
+anaBACoNMap
+.depend
