@@ -39,17 +39,17 @@ inline bool fileExist (const std::string& name) {
 
 
 int main(){
-  TString fileName = "OpticalMapL200.14String.5mm.root";
+  TString fileName = "OpticalMapL200.14String.RealisticFiberLayout_and_DetectorLayout.5mm.root";
 
   TFile *outFileMaGe = new TFile(fileName,"recreate");
   
   //TString dir = "/mnt/mjdDisk1/Majorana/users/nmcfadden/RooT/";
-  TString dir = "/home/nmcfadden/RooT/MaGe_RooT/";
+  TString dir = "/home/nmcfadden/RooT/MaGe_RooT/root/";
   
   //TString inFileNameTH3D = "OpticalMapLEGEND200.4e9_2mm.TwoFiber.5Rows_RawProb.root";
   //TString inFileNameTH3D = "OpticalMapLEGEND200.2.032e+09.19String.twoFiber.NO_HV.5mm.Radon500.root";
   //TString inFileNameTH3D = "OpticalMapLEGEND200.2e9.14String.Radon500.root";
-  TString inFileNameTH3D = "LGND200_14_OpticalMap.root";
+  TString inFileNameTH3D = "LGND200_14_OpticalMapRealisticFiber.root";//LGND200_14_OpticalMap.root";
   //TString inFileNameTH3D = "OpticalMapLEGEND200.4e8.14String.25mm.root";
   //TString inFileNameTH2D = "OpticalMapLEGEND200.4e9_50mm.1e7.Exterior.root";
   TString inFileNameTH2D = "LGND200_14_OpticalMapExterior.root";

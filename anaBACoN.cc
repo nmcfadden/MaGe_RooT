@@ -46,17 +46,19 @@ int main(){
   TString fileName = TString("BACoNAnaOutput")+TString(".root");
   TFile *outFileMaGe = new TFile(fileName,"recreate");
   
-  TNtuple *ntpleLAr = new TNtuple("primaryLAr","primaryLAr","scint:wls:ceren:edep:nDetected:nDetectedOpticalMap:uPanel1:uPanel2:muonTrigger");
+  TNtuple *ntpleLAr = new TNtuple("primaryLAr","primaryLAr","scint:wls:ceren:edep:nDetected:nDetectedOpticalMap:XenonDoped:uPanel1:uPanel2:muonTrigger");
+  TNtuple *ntupleStep = new TNtuple("step","step","parentID:trackID:particleID:edep:KE:stepLength:x:y:z");
   TNtuple *ntpleWLS = new TNtuple("wls","wls","px:py:pz");
-  TNtuple *ntplePrimary = new TNtuple("primary","primary","x:y:z:r:theta:px:py:pz:KE");
+  TNtuple *ntplePrimary = new TNtuple("primary","primary","x:y:z:r:theta:px:py:pz:KE:muonTrigger");
 
   //TH2D * hRZTrackWeight = new TH2D("RZTrackWeights","RZTrackWeight",
   Double_t totalEvents = 0;
  
   TH3D *hMap;
+  TH3D *hMapXe;
   TH2D *hYZMap;
   //TString mapDir = "/mnt/mjdDisk1/Majorana/users/nmcfadden/RooT/";
-  TString mapDir = "/home/nmcfadden/RooT/MaGe_RooT/root/";
+  TString mapDir = "/home/nmcfadden/BACoNSims/root/";
   //TString mapFileName = "OpticalMapBACON.1e9.5mm";
   //TString mapFileName = "OpticalMapBACONArgon.1e10.5mm";
   //TString mapFileName = "OpticalMapBACONXenon.1e10.5mm";
@@ -68,18 +70,26 @@ int main(){
     mapFile->GetObject("OpticalMap",hMap);
     mapFile->GetObject("2DOpticalMap_YZ",hYZMap);
   }
+  mapFileName = "BACoN-heat.PMTs.10000.CorrectedPMTQE.XeDoped";
+  mapFile = TFile::Open(mapDir+mapFileName+TString(".root"));
+  if(mapFile != NULL){
+    mapFile->GetObject("OpticalMap",hMapXe);
+  }
 
   cout<<"starting run"<<endl; 
   Int_t pmtHitCounter = 0;
-  for(int k = 0; k < 1 ; k++){
+  for(int k = 0; k < 19; k++){
    
     //TString dir = "/home/nmcfadden/XenonDoping/bin/Linux-g++/";
-    TString dir = "/home/nmcfadden/RooT/MaGe_RooT/root/";
+    //TString dir = "/home/nmcfadden/RooT/MaGe_RooT/root/";
+    TString dir = "/home/nmcfadden/BACoNSims/cosmicMuons/";
+    //TString dir = "/home/nmcfadden/BACoNSims/Co60/";
     TString fileName = "";
     //fileName = "0.5MeVGammaEvents.29.0.0.cm";
     //fileName = "pmtVUV";
     //fileName = "outputGamma";
-    fileName = "cosmicMuon0";
+    fileName = "cosmicMuon"+to_string(k);
+    //fileName = "Co60"+to_string(k);
     ///*
     if(!fileExist(string(dir+fileName+TString(".root")))){
       cout<<"processed "<<k<<" files"<<endl;
@@ -135,9 +145,8 @@ int main(){
       Double_t r = sqrt(x*x+y*y);
       Double_t theta = std::acos(x/r);
       if( y < 0) theta += 3.14159265359;
-      ntplePrimary->Fill(x,y,z,r,theta,primaries->GetPx(),primaries->GetPy(),primaries->GetPz(),primaries->GetKineticE());
       //*/
-      Double_t nPhotons = 0,eDepLAr = 0,eDepTotal = 0,eDepPanel1 = 0,eDepPanel2 = 0;
+      Double_t nPhotons = 0,nPhotonsXe = 0,eDepLAr = 0,eDepTotal = 0,eDepPanel1 = 0,eDepPanel2 = 0;
       Int_t nDetected = 0,scintNum = 0,wlsNum = 0,cereNum = 0,muonTrigger = -1;
       bool hitLAr = false,hitPMT = false,muonFlag1 = false,muonFlag2 = false;
       //472,630,711,841,887,997
@@ -150,7 +159,13 @@ int main(){
         Int_t trackWeight = step->GetTrackWeight();
         Int_t trackID = step->GetTrackID();
         Int_t stepNum = step->GetStepNumber();
+        Int_t parentID = step->GetParentTrackID();
+        Int_t particleID = step->GetParticleID();
         Double_t KE = step->GetKineticE();
+        Double_t stepX = step->GetX(),stepY = step->GetY(),stepZ = step->GetY();
+        Double_t stepLength = step->GetStepLength();
+
+        if(physName == "Detector") ntupleStep->Fill(parentID,trackID,particleID,edep,KE,stepLength,stepX,stepY,stepZ);
         //cout<<"Event "<<i<<", trackID "<<trackID<<", stepNumber "<<stepNum<<", KE "<<KE<<", eDep "<<edep<<
         //", "<<physName<<", processName "<<procName<<" ("<<step->GetX()<<","<<step->GetY()<<","<<step->GetZ()<<")"<<endl;
         //Count optical photons
@@ -178,11 +193,11 @@ int main(){
           nDetected++;
           hitPMT = true;
         }
-        if(physName = "ScintPanel1" && edep > 0 && trackID == 1){
+        if(physName == "ScintPanel1" && edep > 0 && parentID == 1){
           muonFlag1 = true;
           eDepPanel1 += edep;
         }
-        if(physName = "ScintPanel2" && edep > 0 && trackID == 1){
+        if(physName == "ScintPanel2" && edep > 0 && parentID == 1){
           muonFlag2 = true;
           eDepPanel2 += edep;
         }
@@ -196,12 +211,18 @@ int main(){
           //average photon yeild accord to map
           nPhotons += edep*eThresh;
           //cout<<nPhotons<<"...nPhotons = edep*(mapProb*scintYield)..."<<edep*eThresh<<" = "<<edep<<"*("<<mapProb<<"*"<<scintYeild<<")"<<endl;
+          //Xenon Doped Map
+          mapProb = hMapXe->GetBinContent(bin);
+          eThresh = mapProb*scintYeild;
+          nPhotonsXe += edep*eThresh;
+          //cout<<"xenon "<<nPhotonsXe<<"...nPhotons = edep*(mapProb*scintYield)..."<<edep*eThresh<<" = "<<edep<<"*("<<mapProb<<"*"<<scintYeild<<")"<<endl;
         }
 
       }
       if(hitPMT) pmtHitCounter++;
       if(muonFlag1 && muonFlag2 )muonTrigger = 1;
-      ntpleLAr->Fill(scintNum,wlsNum,cereNum,eDepLAr,nDetected,nPhotons,eDepPanel1,eDepPanel2,muonTrigger);
+      ntplePrimary->Fill(x,y,z,r,theta,primaries->GetPx(),primaries->GetPy(),primaries->GetPz(),primaries->GetKineticE(),muonTrigger);
+      if(eDepLAr > 0) ntpleLAr->Fill(scintNum,wlsNum,cereNum,eDepLAr,nDetected,nPhotons,nPhotonsXe,eDepPanel1,eDepPanel2,muonTrigger);
       
     }
   }

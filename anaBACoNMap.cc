@@ -81,7 +81,8 @@ int main(){
     TString dir = "";
     dir = "/home/nmcfadden/BACoNSims/maps/";
     TString fileName = "";
-    fileName = "BACONOptical"+to_string(k);
+    //fileName = "BACONOptical"+to_string(k);
+    fileName = "BACONOpticalXenonDoped"+to_string(k);
     //TString fileName = "14StringBaselineExterior"+to_string(k);
     cout<<"File location at: "<<dir+fileName+TString(".root")<<endl;;
     if(!fileExist(string(dir+fileName+TString(".root") ) ) ){
